@@ -63,6 +63,7 @@ export async function GET() {
 export async function POST(req: Request) {
   try {
     const body = await req.json()
+
     const { title, author, genre, description, user } = body
 
     if (!title || !author || !genre || !description || !user?.uid) {
@@ -79,11 +80,11 @@ export async function POST(req: Request) {
       author,
       genre,
       description,
-      createdBy: {
-        uid: user.uid,
-        name: user.name,
-        email: user.email,
-      },
+
+      // store UID directly for fast queries
+      userUid: user.uid,
+      userName: user.displayName || user.name,
+      userEmail: user.email,
     })
 
     return NextResponse.json(book, { status: 201 })
@@ -95,3 +96,15 @@ export async function POST(req: Request) {
     )
   }
 }
+
+export async function OPTIONS() {
+  return new NextResponse(null, {
+    status: 200,
+    headers: {
+      "Access-Control-Allow-Origin": "*",
+      "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+      "Access-Control-Allow-Headers": "Content-Type",
+    },
+  })
+}
+

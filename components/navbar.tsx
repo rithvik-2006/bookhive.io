@@ -104,12 +104,31 @@ export function Navbar() {
 
           {/* Right section */}
           <div className="flex items-center gap-4">
-            <Link
+            {/* <Link
               href="/books/add"
               className="px-3 py-2 text-sm font-medium text-foreground hover:text-primary transition-colors hidden sm:inline"
             >
               Add Book
-            </Link>
+            </Link> */}
+            <Link
+  href="/books/add"
+  className="
+    hidden sm:inline-flex
+    items-center gap-2
+    px-4 py-2
+    rounded-lg
+    text-sm font-medium
+    bg-primary/10
+    text-primary
+    border border-primary/20
+    hover:bg-primary hover:text-primary-foreground
+    transition-all
+    duration-200
+  "
+>
+  Add Book
+</Link>
+
 
             {!loading && !user && (
               <Link

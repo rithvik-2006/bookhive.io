@@ -11,32 +11,11 @@ import { Navbar } from "@/components/navbar"
 import { ReviewCard } from "@/components/review-card"
 import { BookCard } from "@/components/book-card"
 
-const userReviews = [
-  {
-    username: "You",
-    avatar: "U",
-    rating: 5,
-    text: "Absolutely loved this book! The character development was outstanding.",
-    date: "1 week ago",
-  },
-  {
-    username: "You",
-    avatar: "U",
-    rating: 4,
-    text: "Great read with some truly inspiring moments.",
-    date: "2 weeks ago",
-  },
-]
-
-const userBooksReviewed = [
-  { id: "1", title: "The Midnight Library", author: "Matt Haig", genre: "Fiction", rating: 4.5, reviewCount: 1280 },
-  { id: "2", title: "Atomic Habits", author: "James Clear", genre: "Self-Help", rating: 4.7, reviewCount: 2150 },
-]
-
 export default function ProfilePage() {
   const router = useRouter()
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
+  const [reviews, setReviews] = useState<any[]>([])
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
@@ -50,6 +29,26 @@ export default function ProfilePage() {
 
     return () => unsubscribe()
   }, [router])
+
+  useEffect(() => {
+    if (!user) return
+
+    fetch(`/api/reviews/user/${user.uid}`)
+      .then((res) => res.json())
+      .then(setReviews)
+      .catch(() => setReviews([]))
+  }, [user])
+
+  const [books, setBooks] = useState<any[]>([])
+
+  useEffect(() => {
+    if (!user) return
+
+    fetch(`/api/books/user/${user.uid}`)
+      .then((res) => res.json())
+      .then(setBooks)
+      .catch(() => setBooks([]))
+  }, [user])
 
   if (loading || !user) {
     return null
@@ -90,7 +89,7 @@ export default function ProfilePage() {
                     Books Reviewed
                   </span>
                   <span className="block text-2xl font-bold text-foreground">
-                    {userReviews.length}
+                    {reviews.length}
                   </span>
                 </div>
 
@@ -113,9 +112,15 @@ export default function ProfilePage() {
             Recent Reviews
           </h2>
           <div className="space-y-4">
-            {userReviews.map((review, idx) => (
-              <ReviewCard key={idx} {...review} />
-            ))}
+            {reviews.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                You haven't written any reviews yet.
+              </p>
+            ) : (
+              reviews.map((review, idx) => (
+                <ReviewCard key={idx} {...review} />
+              ))
+            )}
           </div>
         </div>
 
@@ -125,9 +130,15 @@ export default function ProfilePage() {
             Books Reviewed
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-            {userBooksReviewed.map((book) => (
-              <BookCard key={book.id} {...book} />
-            ))}
+            {books.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                You haven’t added any books yet.
+              </p>
+            ) : (
+              books.map((book) => (
+                <BookCard key={book.id} {...book} />
+              ))
+            )}
           </div>
         </div>
       </main>
